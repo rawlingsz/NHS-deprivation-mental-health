@@ -29,6 +29,18 @@ def load_artifacts():
 
 saved, features, target, engineered, shap_values, shap_ranking = load_artifacts()
 
+# Plotly toolbar config, reused everywhere a chart is drawn: keep only the PNG
+# download button, since zoom/pan/select add clutter without real value on
+# these simple bar charts, and this is a presentation deliverable, not a
+# data-exploration tool.
+CHART_CONFIG = {
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        "zoom2d", "pan2d", "select2d", "lasso2d",
+        "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d",
+    ],
+}
+
 MODEL_METRICS = {
     "Logistic Regression": {"AUC-ROC": 0.981, "Precision": 0.880, "Recall": 0.964, "F1": 0.920},
     "Random Forest":       {"AUC-ROC": 0.988, "Precision": 0.944, "Recall": 0.978, "F1": 0.961},
@@ -90,7 +102,7 @@ if page == "Overview":
         fig = px.bar(x=counts.values, y=counts.index, orientation="h",
                      labels={"x": "Rows", "y": ""}, color_discrete_sequence=["#1B2A4A"])
         fig.update_layout(height=350, margin=dict(l=0, r=0, t=10, b=0))
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, width='stretch', config=CHART_CONFIG)
 
 # ============================================================
 # Page: Model Comparison
@@ -116,7 +128,7 @@ elif page == "Model Comparison":
                               y=[MODEL_METRICS[m][metric] for m in MODEL_METRICS]))
     fig.update_layout(barmode="group", yaxis_range=[0.8, 1.0], height=420,
                        margin=dict(l=0, r=0, t=20, b=0))
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, width='stretch', config=CHART_CONFIG)
 
     st.info(
         "XGBoost was selected for the SHAP explainability stage, since it achieved the highest "
@@ -146,7 +158,7 @@ elif page == "SHAP Predictor Ranking":
         yaxis=dict(autorange="reversed"),
         height=420, margin=dict(l=0, r=0, t=20, b=0),
     )
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, width='stretch', config=CHART_CONFIG)
 
     st.markdown(
         f"**Accommodation Type ranks first**, ahead of Age, Ethnicity, and Disability. "
